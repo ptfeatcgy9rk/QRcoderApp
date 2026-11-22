@@ -129,13 +129,14 @@ a { color: var(--accent); }
 <main>
 
 <h1>メモQR転送ツール セットアップ手順書</h1>
-<p class="lead">Visual Studio 2022 / WinForms / C# / .NET Framework 4.8。ZIPは使わず、ブラウザでGitHubを開いてコピーし、このページのコードを貼り付けて作ります。</p>
+<p class="lead">Visual Studio 2022 / WinForms / C# / .NET Framework 4.8。フォームの部品はデザイナーで配置し、コードは処理部分だけを貼り付けます。</p>
 
 <h2>0. 前提</h2>
 <ul>
   <li><strong>NuGet・DLLは使いません。</strong> QR生成ライブラリは、GitHubのソース（.csファイル41個）をプロジェクトに直接コピーして使います。</li>
-  <li><strong>対象フレームワークは .NET Framework 4.8 です。</strong> .NET Framework 4.8 には <code class="inline">System.Text.Json</code> が含まれないため、JSONは手書きの文字列処理で作ります（NuGetを使わないため）。</li>
-  <li>このページの「コピー」ボタンでコードをコピーできます。全文を掲載しており、省略はありません。</li>
+  <li><strong>対象フレームワークは .NET Framework 4.8 です。</strong> <code class="inline">System.Text.Json</code> は使わず、JSONは手書きの文字列処理で作ります。</li>
+  <li><strong>画面の部品はデザイナーで配置します。</strong> 配置する部品の名前・文字・位置は、この手順書の表どおりにしてください。部品の名前が違うと、コードがエラーになります。</li>
+  <li>このページの「コピー」ボタンでコードをコピーできます。省略はありません。</li>
 </ul>
 
 <h2>1. プロジェクトを作成する</h2>
@@ -146,9 +147,9 @@ a { color: var(--accent); }
   <li>フレームワークが <strong>.NET Framework 4.8</strong> になっていることを確認して作成する。</li>
 </ol>
 
-<h2>2. 不要なファイルを削除し、フォルダを作る</h2>
+<h2>2. 不要なファイルを削除し、フォームを作り直す</h2>
 <ol class="step-list">
-  <li>ソリューションエクスプローラーで <code class="inline">Form1.cs</code> を右クリックして削除する。<code class="inline">Form1.Designer.cs</code> も同様に削除する（片方だけ残すとエラーになります）。確認が出たら「OK」。</li>
+  <li>ソリューションエクスプローラーで <code class="inline">Form1.cs</code> を右クリックして削除する。<code class="inline">Form1.Designer.cs</code> も同様に削除する（片方だけ残すとエラーになります）。</li>
   <li>プロジェクト名（MemoQrTransfer）を右クリック →「追加」→「新しいフォルダー」で、次の3つを作る。
     <ul>
       <li><code class="inline">Models</code></li>
@@ -156,6 +157,7 @@ a { color: var(--accent); }
       <li><code class="inline">Library</code></li>
     </ul>
   </li>
+  <li>プロジェクト名を右クリック →「追加」→「Windows フォーム」を選ぶ。名前を <code class="inline">MainForm.cs</code> にして「追加」。</li>
 </ol>
 
 <h2>3. プロジェクトファイル（csproj）に LangVersion を追加する</h2>
@@ -194,198 +196,117 @@ namespace MemoQrTransfer
 </code></pre>
 </section>
 
-<h2>5. 自作のクラスファイルを追加する</h2>
-<p>各ファイルは、「プロジェクト」（または対象フォルダ）を右クリック →「追加」→「クラス」で作成します。ファイル名は下の表のとおりにしてください。テンプレートのコードは、次の内容で<strong>すべて置き換えて</strong>ください。</p>
+<h2>5. フォームをデザイナーで作る</h2>
+<p>ソリューションエクスプローラーで <code class="inline">MainForm.cs</code> をダブルクリックして開き、画面の上にある「デザイン」タブ（<code class="inline">MainForm.cs [デザイン]</code>）を表示します。</p>
 
+<h3>5-1. フォーム本体の設定</h3>
+<p>フォームの何もない部分をクリックし、プロパティウィンドウで次のように設定します。</p>
 <table>
-  <thead><tr><th>作成する場所</th><th>ファイル名</th><th>節</th></tr></thead>
+  <thead><tr><th>プロパティ</th><th>値</th></tr></thead>
   <tbody>
-    <tr><td>プロジェクト直下</td><td>MainForm.cs</td><td>5-1</td></tr>
-    <tr><td>Models</td><td>QrPart.cs</td><td>5-2</td></tr>
-    <tr><td>Models</td><td>QrDocument.cs</td><td>5-3</td></tr>
-    <tr><td>Services</td><td>MemoSplitter.cs</td><td>5-4</td></tr>
-    <tr><td>Services</td><td>QrJsonBuilder.cs</td><td>5-5</td></tr>
-    <tr><td>Services</td><td>QrBitmapFactory.cs</td><td>5-6</td></tr>
+    <tr><td>(Name)</td><td>MainForm（初期値のまま）</td></tr>
+    <tr><td>Text</td><td>メモQR転送ツール</td></tr>
+    <tr><td>ClientSize</td><td>1010, 760</td></tr>
+    <tr><td>FormBorderStyle</td><td>FixedSingle</td></tr>
+    <tr><td>MaximizeBox</td><td>False</td></tr>
+    <tr><td>StartPosition</td><td>CenterScreen</td></tr>
   </tbody>
 </table>
 
-<div class="note">「クラス」を作ると、中身が <code class="inline">public class ...</code> のテンプレートになります。下のコードで中身をすべて置き換えてから保存してください。ファイル名とクラス名は一致させます。</div>
+<h3>5-2. 部品の配置</h3>
+<p>ツールボックスから次の部品をフォームにドラッグします。配置したら、プロパティウィンドウで <strong>(Name)</strong> を表の名前に変えます。位置は <strong>Location</strong>、大きさは <strong>Size</strong> で指定します。書かれていない項目は初期値のままで構いません。</p>
 
-<h3>5-1. MainForm.cs（画面と操作）</h3>
+<table>
+  <thead>
+    <tr><th>部品</th><th>(Name)</th><th>Text / 設定</th><th>Location（X, Y）</th><th>Size（幅, 高さ）</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Label</td><td>lblMemo</td><td>メモ</td><td>12, 12</td><td>（自動）</td></tr>
+    <tr><td>TextBox</td><td>txtMemo</td><td>Multiline=True / ScrollBars=Vertical / AcceptsReturn=True</td><td>12, 34</td><td>360, 300</td></tr>
+    <tr><td>Button</td><td>btnGenerate</td><td>QR生成</td><td>12, 345</td><td>110, 36</td></tr>
+    <tr><td>Button</td><td>btnNew</td><td>新規</td><td>132, 345</td><td>110, 36</td></tr>
+    <tr><td>Label</td><td>lblInfo</td><td>（空欄のまま）/ AutoSize=False</td><td>12, 395</td><td>360, 90</td></tr>
+    <tr><td>PictureBox</td><td>picQr</td><td>SizeMode=Zoom / BorderStyle=FixedSingle / BackColor=White</td><td>390, 12</td><td>600, 600</td></tr>
+    <tr><td>Button</td><td>btnPrev</td><td>前へ</td><td>390, 625</td><td>90, 32</td></tr>
+    <tr><td>Label</td><td>lblPart</td><td>Part</td><td>490, 633</td><td>（自動）</td></tr>
+    <tr><td>NumericUpDown</td><td>numPart</td><td>Minimum=1 / Maximum=1 / Value=1</td><td>530, 628</td><td>80, 25</td></tr>
+    <tr><td>Label</td><td>lblTotal</td><td>/ 0</td><td>618, 633</td><td>（自動）</td></tr>
+    <tr><td>Button</td><td>btnNext</td><td>次へ</td><td>680, 625</td><td>90, 32</td></tr>
+    <tr><td>Button</td><td>btnPlay</td><td>再生</td><td>390, 675</td><td>90, 32</td></tr>
+    <tr><td>Button</td><td>btnStop</td><td>停止</td><td>490, 675</td><td>90, 32</td></tr>
+    <tr><td>CheckBox</td><td>chkLoop</td><td>ループ / Checked=True</td><td>600, 680</td><td>（自動）</td></tr>
+    <tr><td>CheckBox</td><td>chkAuto</td><td>自動再生 / Checked=False</td><td>690, 680</td><td>（自動）</td></tr>
+    <tr><td>Label</td><td>lblIntervalCaption</td><td>間隔(ms)</td><td>390, 722</td><td>（自動）</td></tr>
+    <tr><td>NumericUpDown</td><td>numInterval</td><td>Minimum=100 / Maximum=60000 / Increment=100 / Value=1500</td><td>470, 718</td><td>100, 25</td></tr>
+    <tr><td>Timer</td><td>timerPlay</td><td>Interval=1500（画面の下の「コンポーネント」欄に表示される）</td><td>（自動）</td><td>（自動）</td></tr>
+  </tbody>
+</table>
+
+<div class="note">Timer は、ツールボックスの「コンポーネント」にある「Timer」をフォームにドラッグします。ボタンのように画面には表示されず、フォームの下に「timerPlay」と表示されます。</div>
+
+<h3>5-3. イベントを割り当てる</h3>
+<p>部品を選択 → プロパティウィンドウの<strong>稲妻マーク（イベント）</strong>を開き、次の項目の欄を<strong>ダブルクリック</strong>します。名前が自動で入り、対応するメソッドが <code class="inline">MainForm.cs</code> に作られます。</p>
+<table>
+  <thead><tr><th>部品</th><th>イベント</th><th>ダブルクリックで入る名前</th></tr></thead>
+  <tbody>
+    <tr><td>btnGenerate</td><td>Click</td><td>btnGenerate_Click</td></tr>
+    <tr><td>btnNew</td><td>Click</td><td>btnNew_Click</td></tr>
+    <tr><td>btnPrev</td><td>Click</td><td>btnPrev_Click</td></tr>
+    <tr><td>btnNext</td><td>Click</td><td>btnNext_Click</td></tr>
+    <tr><td>btnPlay</td><td>Click</td><td>btnPlay_Click</td></tr>
+    <tr><td>btnStop</td><td>Click</td><td>btnStop_Click</td></tr>
+    <tr><td>numPart</td><td>ValueChanged</td><td>numPart_ValueChanged</td></tr>
+    <tr><td>timerPlay</td><td>Tick</td><td>timerPlay_Tick</td></tr>
+    <tr><td>MainForm（フォーム自体）</td><td>FormClosing</td><td>MainForm_FormClosing</td></tr>
+  </tbody>
+</table>
+
+<div class="note">イベントをダブルクリックすると、<code class="inline">MainForm.cs</code> にメソッドの骨組みが作られます。次の6節で <code class="inline">MainForm.cs</code> の中身をすべて置き換えるので、骨組みは残っていても問題ありません。</div>
+
+<h2>6. MainForm.cs のコードを貼り付ける</h2>
+<p><code class="inline">MainForm.cs</code> を開き、中身をすべて次の内容に置き換えて保存します。<code class="inline">InitializeComponent()</code> は、デザイナーが自動で作る <code class="inline">MainForm.Designer.cs</code> の中にあるので、ここには書いてありません。</p>
+
 <section class="file">
   <div class="bar"><span class="path">MainForm.cs</span></div>
   <pre><code>using System;
-using System.Drawing;
 using System.Windows.Forms;
 using MemoQrTransfer.Models;
 using MemoQrTransfer.Services;
 
 namespace MemoQrTransfer
 {
-    /// &lt;summary&gt;単一フォーム。UIはコードで組み立てる（デザイナーファイル不要）。&lt;/summary&gt;
-    public class MainForm : Form
+    /// &lt;summary&gt;画面の操作ロジック。部品はデザイナー（MainForm.Designer.cs）で配置済み。&lt;/summary&gt;
+    public partial class MainForm : Form
     {
-        // --- UI ---
-        private TextBox _memoBox;
-        private Button _btnGenerate;
-        private Button _btnNew;
-        private Label _lblInfo;
-        private PictureBox _picture;
-        private Button _btnPrev;
-        private NumericUpDown _numPart;
-        private Label _lblTotal;
-        private Button _btnNext;
-        private Button _btnPlay;
-        private Button _btnStop;
-        private CheckBox _chkLoop;
-        private CheckBox _chkAuto;
-        private Label _lblIntervalCaption;
-        private NumericUpDown _numInterval;
-
-        // --- 状態 ---
         private QrDocument _doc;
-        private int _currentIndex;       // 0 始まり
-        private bool _updatingPartNumber; // NumericUpDown を内部から変更中のフラグ
-        // System.Threading.Timer と衝突しないよう完全修飾名で指定
-        private readonly System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
+        private int _currentIndex;        // 0 始まり
+        private bool _updatingPartNumber; // numPart を内部から変更中のフラグ
 
         public MainForm()
         {
-            BuildUi();
-
-            _timer.Tick += Timer_Tick;
-            _timer.Interval = (int)_numInterval.Value;
-
+            InitializeComponent();
             UpdateInfo();
             UpdateControls();
         }
 
-        // ==================== UI 構築 ====================
+        // ===== 生成 =====
 
-        private void BuildUi()
+        private void btnGenerate_Click(object sender, EventArgs e)
         {
-            Text = "メモQR転送ツール";
-            StartPosition = FormStartPosition.CenterScreen;
-            FormBorderStyle = FormBorderStyle.FixedSingle;
-            MaximizeBox = false;
-            ClientSize = new Size(1010, 760);
-            Font = new Font("Yu Gothic UI", 9F);
-
-            // メモ入力
-            var lblMemo = new Label { Text = "メモ", Location = new Point(12, 12), AutoSize = true };
-            _memoBox = new TextBox
-            {
-                Location = new Point(12, 34),
-                Size = new Size(360, 300),
-                Multiline = true,
-                ScrollBars = ScrollBars.Vertical,
-                AcceptsReturn = true
-            };
-
-            _btnGenerate = new Button { Text = "QR生成", Location = new Point(12, 345), Size = new Size(110, 36) };
-            _btnGenerate.Click += BtnGenerate_Click;
-
-            _btnNew = new Button { Text = "新規", Location = new Point(132, 345), Size = new Size(110, 36) };
-            _btnNew.Click += BtnNew_Click;
-
-            _lblInfo = new Label
-            {
-                Location = new Point(12, 395),
-                Size = new Size(360, 90),
-                AutoSize = false
-            };
-
-            // QR表示
-            _picture = new PictureBox
-            {
-                Location = new Point(390, 12),
-                Size = new Size(600, 600),
-                SizeMode = PictureBoxSizeMode.Zoom,
-                BorderStyle = BorderStyle.FixedSingle,
-                BackColor = Color.White
-            };
-
-            // ページ移動
-            _btnPrev = new Button { Text = "前へ", Location = new Point(390, 625), Size = new Size(90, 32) };
-            _btnPrev.Click += (s, e) =&gt; ShowPart(_currentIndex - 1);
-
-            var lblPart = new Label { Text = "Part", Location = new Point(490, 633), AutoSize = true };
-            _numPart = new NumericUpDown
-            {
-                Location = new Point(530, 628),
-                Size = new Size(80, 25),
-                Minimum = 1,
-                Maximum = 1,
-                Value = 1
-            };
-            _numPart.ValueChanged += NumPart_ValueChanged;
-
-            _lblTotal = new Label { Text = "/ 0", Location = new Point(618, 633), AutoSize = true };
-
-            _btnNext = new Button { Text = "次へ", Location = new Point(680, 625), Size = new Size(90, 32) };
-            _btnNext.Click += (s, e) =&gt; ShowPart(_currentIndex + 1);
-
-            // 自動再生
-            _btnPlay = new Button { Text = "再生", Location = new Point(390, 675), Size = new Size(90, 32) };
-            _btnPlay.Click += (s, e) =&gt; StartPlayback();
-
-            _btnStop = new Button { Text = "停止", Location = new Point(490, 675), Size = new Size(90, 32) };
-            _btnStop.Click += (s, e) =&gt; StopPlayback();
-
-            _chkLoop = new CheckBox { Text = "ループ", Location = new Point(600, 680), AutoSize = true, Checked = true };
-
-            _chkAuto = new CheckBox { Text = "自動再生", Location = new Point(690, 680), AutoSize = true, Checked = false };
-
-            _lblIntervalCaption = new Label { Text = "間隔(ms)", Location = new Point(390, 722), AutoSize = true };
-            _numInterval = new NumericUpDown
-            {
-                Location = new Point(470, 718),
-                Size = new Size(100, 25),
-                Minimum = 100,
-                Maximum = 60000,
-                Increment = 100,
-                Value = 1500
-            };
-            _numInterval.ValueChanged += (s, e) =&gt; _timer.Interval = (int)_numInterval.Value;
-
-            Controls.AddRange(new Control[]
-            {
-                lblMemo, _memoBox, _btnGenerate, _btnNew, _lblInfo,
-                _picture,
-                _btnPrev, lblPart, _numPart, _lblTotal, _btnNext,
-                _btnPlay, _btnStop, _chkLoop, _chkAuto,
-                _lblIntervalCaption, _numInterval
-            });
-
-            FormClosing += (s, e) =&gt;
-            {
-                _timer.Stop();
-                _picture.Image = null;
-                _doc?.Dispose();
-            };
-        }
-
-        // ==================== 生成 ====================
-
-        private void BtnGenerate_Click(object sender, EventArgs e)
-        {
-            string memo = _memoBox.Text;
+            string memo = txtMemo.Text;
             if (string.IsNullOrEmpty(memo))
             {
                 MessageBox.Show(this, "メモを入力してください。", "確認", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            // 生成は押下時のみ。前回のBitmapは破棄してから作り直す
             StopPlayback();
-
             var newDoc = new QrDocument { Id = DateTime.Now.ToString("yyyyMMddHHmmss") };
 
             try
             {
-                var split = MemoSplitter.Split(memo, newDoc.Id);
-
                 Cursor = Cursors.WaitCursor;
+                var split = MemoSplitter.Split(memo, newDoc.Id);
                 foreach (var json in split.Jsons)
                 {
                     newDoc.Parts.Add(new QrPart
@@ -400,7 +321,6 @@ namespace MemoQrTransfer
             catch (Exception ex)
             {
                 newDoc.Dispose();
-                Cursor = Cursors.Default;
                 MessageBox.Show(this, "QR生成に失敗しました。\r\n" + ex.Message, "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
@@ -410,25 +330,22 @@ namespace MemoQrTransfer
             }
 
             // 古いデータを画面から外してから破棄
-            _picture.Image = null;
+            picQr.Image = null;
             _doc?.Dispose();
             _doc = newDoc;
 
             _updatingPartNumber = true;
-            _numPart.Maximum = _doc.Count;
-            _numPart.Value = 1;
+            numPart.Maximum = _doc.Count;
+            numPart.Value = 1;
             _updatingPartNumber = false;
-            _lblTotal.Text = "/ " + _doc.Count;
+            lblTotal.Text = "/ " + _doc.Count;
 
             ShowPart(0);
 
-            if (_chkAuto.Checked)
-            {
-                StartPlayback();
-            }
+            if (chkAuto.Checked) StartPlayback();
         }
 
-        // ==================== 表示・ページ移動 ====================
+        // ===== 表示・ページ移動 =====
 
         private void ShowPart(int index)
         {
@@ -438,39 +355,47 @@ namespace MemoQrTransfer
             if (index &gt; _doc.Count - 1) index = _doc.Count - 1;
 
             _currentIndex = index;
-            _picture.Image = _doc.Parts[index].Image; // Bitmap は保持済み。ここでは再生成しない
+            picQr.Image = _doc.Parts[index].Image; // Bitmap は保持済み。ここでは再生成しない
 
             _updatingPartNumber = true;
-            _numPart.Value = index + 1;
+            numPart.Value = index + 1;
             _updatingPartNumber = false;
 
             UpdateInfo();
             UpdateControls();
         }
 
-        private void NumPart_ValueChanged(object sender, EventArgs e)
+        private void btnPrev_Click(object sender, EventArgs e) { ShowPart(_currentIndex - 1); }
+
+        private void btnNext_Click(object sender, EventArgs e) { ShowPart(_currentIndex + 1); }
+
+        private void numPart_ValueChanged(object sender, EventArgs e)
         {
             if (_updatingPartNumber) return;
-            ShowPart((int)_numPart.Value - 1);
+            ShowPart((int)numPart.Value - 1);
         }
 
-        // ==================== 自動再生 ====================
+        // ===== 自動再生 =====
+
+        private void btnPlay_Click(object sender, EventArgs e) { StartPlayback(); }
+
+        private void btnStop_Click(object sender, EventArgs e) { StopPlayback(); }
 
         private void StartPlayback()
         {
             if (_doc == null || _doc.Count == 0) return;
-            _timer.Interval = (int)_numInterval.Value;
-            _timer.Start();
+            timerPlay.Interval = (int)numInterval.Value;
+            timerPlay.Start();
             UpdateControls();
         }
 
         private void StopPlayback()
         {
-            _timer.Stop();
+            timerPlay.Stop();
             UpdateControls();
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
+        private void timerPlay_Tick(object sender, EventArgs e)
         {
             if (_doc == null || _doc.Count == 0)
             {
@@ -482,7 +407,7 @@ namespace MemoQrTransfer
             {
                 ShowPart(_currentIndex + 1);
             }
-            else if (_chkLoop.Checked)
+            else if (chkLoop.Checked)
             {
                 ShowPart(0); // 最後のPartから先頭へ戻る
             }
@@ -492,43 +417,51 @@ namespace MemoQrTransfer
             }
         }
 
-        // ==================== 新規（リセット） ====================
+        // ===== 新規（リセット） =====
 
-        private void BtnNew_Click(object sender, EventArgs e)
+        private void btnNew_Click(object sender, EventArgs e)
         {
-            if (_doc == null &amp;&amp; _memoBox.Text.Length == 0) return;
+            if (_doc == null &amp;&amp; txtMemo.Text.Length == 0) return;
 
             var result = MessageBox.Show(this, "現在のQRを破棄しますか？", "確認",
                 MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (result != DialogResult.Yes) return;
 
-            _timer.Stop();                 // Timer停止
-            _picture.Image = null;         // PictureBoxクリア（先に外してから破棄する）
-            _doc?.Dispose();               // Bitmap破棄
-            _doc = null;                   // QR一覧クリア
-            _memoBox.Clear();              // メモ入力クリア
-            _currentIndex = 0;             // 現在Part初期化
+            timerPlay.Stop();          // Timer停止
+            picQr.Image = null;        // PictureBoxクリア
+            _doc?.Dispose();           // Bitmap破棄
+            _doc = null;               // QR一覧クリア
+            txtMemo.Clear();           // メモ入力クリア
+            _currentIndex = 0;         // 現在Part初期化
 
             _updatingPartNumber = true;
-            _numPart.Maximum = 1;
-            _numPart.Value = 1;
+            numPart.Maximum = 1;
+            numPart.Value = 1;
             _updatingPartNumber = false;
-            _lblTotal.Text = "/ 0";
+            lblTotal.Text = "/ 0";
 
             UpdateInfo();
             UpdateControls();
         }
 
-        // ==================== 表示更新 ====================
+        // ===== 終了時 =====
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            timerPlay.Stop();
+            picQr.Image = null;
+            _doc?.Dispose();
+        }
+
+        // ===== 表示更新 =====
 
         private void UpdateInfo()
         {
-            int chars = _memoBox.Text.Length;
             int count = _doc?.Count ?? 0;
             string part = count == 0 ? "-" : (_currentIndex + 1).ToString();
 
-            _lblInfo.Text =
-                "文字数: " + chars + "\r\n" +
+            lblInfo.Text =
+                "文字数: " + txtMemo.Text.Length + "\r\n" +
                 "QR数: " + count + "\r\n" +
                 "Part: " + part + " / " + count;
         }
@@ -536,20 +469,27 @@ namespace MemoQrTransfer
         private void UpdateControls()
         {
             bool hasDoc = _doc != null &amp;&amp; _doc.Count &gt; 0;
-            bool playing = _timer.Enabled;
+            bool playing = timerPlay.Enabled;
 
-            _btnPrev.Enabled = hasDoc &amp;&amp; _currentIndex &gt; 0 &amp;&amp; !playing;
-            _btnNext.Enabled = hasDoc &amp;&amp; _currentIndex &lt; _doc.Count - 1 &amp;&amp; !playing;
-            _numPart.Enabled = hasDoc &amp;&amp; !playing;
-            _btnPlay.Enabled = hasDoc &amp;&amp; !playing;
-            _btnStop.Enabled = playing;
+            btnPrev.Enabled = hasDoc &amp;&amp; _currentIndex &gt; 0 &amp;&amp; !playing;
+            btnNext.Enabled = hasDoc &amp;&amp; _currentIndex &lt; _doc.Count - 1 &amp;&amp; !playing;
+            numPart.Enabled = hasDoc &amp;&amp; !playing;
+            btnPlay.Enabled = hasDoc &amp;&amp; !playing;
+            btnStop.Enabled = playing;
         }
     }
 }
 </code></pre>
 </section>
 
-<h3>5-2. Models/QrPart.cs</h3>
+<h2>7. Models・Services のファイルを追加する</h2>
+<p>各フォルダを右クリック →「追加」→「クラス」で、次のファイルを作ります。テンプレートの中身はすべて置き換えてください。</p>
+<ul>
+  <li><strong>Models</strong>：<code class="inline">QrPart.cs</code>、<code class="inline">QrDocument.cs</code></li>
+  <li><strong>Services</strong>：<code class="inline">MemoSplitter.cs</code>、<code class="inline">QrJsonBuilder.cs</code>、<code class="inline">QrBitmapFactory.cs</code></li>
+</ul>
+
+<h3>7-1. Models/QrPart.cs</h3>
 <section class="file">
   <div class="bar"><span class="path">Models/QrPart.cs</span></div>
   <pre><code>using System.Drawing;
@@ -568,7 +508,7 @@ namespace MemoQrTransfer.Models
 </code></pre>
 </section>
 
-<h3>5-3. Models/QrDocument.cs</h3>
+<h3>7-2. Models/QrDocument.cs</h3>
 <section class="file">
   <div class="bar"><span class="path">Models/QrDocument.cs</span></div>
   <pre><code>using System;
@@ -598,7 +538,7 @@ namespace MemoQrTransfer.Models
 </code></pre>
 </section>
 
-<h3>5-4. Services/MemoSplitter.cs</h3>
+<h3>7-3. Services/MemoSplitter.cs</h3>
 <section class="file">
   <div class="bar"><span class="path">Services/MemoSplitter.cs</span></div>
   <pre><code>using System;
@@ -686,7 +626,7 @@ namespace MemoQrTransfer.Services
 </code></pre>
 </section>
 
-<h3>5-5. Services/QrJsonBuilder.cs</h3>
+<h3>7-4. Services/QrJsonBuilder.cs</h3>
 <section class="file">
   <div class="bar"><span class="path">Services/QrJsonBuilder.cs</span></div>
   <pre><code>using System.Text;
@@ -747,7 +687,7 @@ namespace MemoQrTransfer.Services
 </code></pre>
 </section>
 
-<h3>5-6. Services/QrBitmapFactory.cs</h3>
+<h3>7-5. Services/QrBitmapFactory.cs</h3>
 <section class="file">
   <div class="bar"><span class="path">Services/QrBitmapFactory.cs</span></div>
   <pre><code>using System.Drawing;
@@ -790,14 +730,14 @@ namespace MemoQrTransfer.Services
 </code></pre>
 </section>
 
-<h2>6. ライブラリ（Net.Codecrete.QrCodeGenerator）のソースを取り込む</h2>
-<p>ここが一番手間のかかる部分です。GitHub の <code class="inline">QrCodeGenerator</code> フォルダにある <code class="inline">.cs</code> ファイル41個を、1つずつ <code class="inline">Library</code> フォルダにコピーします。</p>
+<h2>8. ライブラリ（Net.Codecrete.QrCodeGenerator）のソースを取り込む</h2>
+<p>GitHub の <code class="inline">QrCodeGenerator</code> フォルダにある <code class="inline">.cs</code> ファイル41個を、1つずつ <code class="inline">Library</code> フォルダにコピーします。</p>
 
 <h3>手順（1ファイルごと）</h3>
 <ol class="step-list">
   <li>ブラウザで次のページを開く。<br>
     <a href="https://github.com/manuelbl/QrCodeGenerator/tree/v3.2.1/QrCodeGenerator">https://github.com/manuelbl/QrCodeGenerator/tree/v3.2.1/QrCodeGenerator</a></li>
-  <li>下の一覧からファイル名をクリックする（または一覧の「.cs」ファイル名をクリックする）。</li>
+  <li>下の一覧からファイル名をクリックする。</li>
   <li>ファイルの画面で、右上の <strong>「Raw」</strong> ボタンを押す。文字だけのページになります。</li>
   <li><strong>Ctrl+A</strong> → <strong>Ctrl+C</strong> で全文をコピーする。</li>
   <li>Visual Studio で <code class="inline">Library</code> フォルダを右クリック →「追加」→「クラス」。ファイル名は GitHub と<strong>同じ名前</strong>（拡張子 .cs を除く）にする。</li>
@@ -808,7 +748,6 @@ namespace MemoQrTransfer.Services
 <div class="note">ファイルの先頭にある著作権表示（Copyright / MIT License）は消さないでください。ファイル名を間違えると、後で「型が見つからない」エラーになります。大文字・小文字も一致させてください。</div>
 
 <h3>ファイル一覧（41個）</h3>
-<p>各ファイル名のリンクを開いて、上の手順でコピーしてください。</p>
 <ul class="libs">
   <li><a href="https://github.com/manuelbl/QrCodeGenerator/blob/v3.2.1/QrCodeGenerator/ArraySegmentExtensions.cs">ArraySegmentExtensions.cs</a></li>
   <li><a href="https://github.com/manuelbl/QrCodeGenerator/blob/v3.2.1/QrCodeGenerator/BitMatrix.cs">BitMatrix.cs</a></li>
@@ -853,14 +792,14 @@ namespace MemoQrTransfer.Services
   <li><a href="https://github.com/manuelbl/QrCodeGenerator/blob/v3.2.1/QrCodeGenerator/VersionPlanner.cs">VersionPlanner.cs</a></li>
 </ul>
 
-<h2>7. ビルドと実行</h2>
+<h2>9. ビルドと実行</h2>
 <ol class="step-list">
   <li>「ビルド」→「ソリューションのビルド」（Ctrl+Shift+B）。エラー一覧が0件であることを確認する。</li>
   <li>F5 で実行する。</li>
 </ol>
-<p>エラーが出た場合は、エラー一覧の先頭のメッセージ（例：「型または名前空間 'QrCode' が見つからない」）を控えておくと原因を特定しやすくなります。多くの場合、Library のファイル名の抜けや、コピーの不完全が原因です。</p>
+<p>エラーが出た場合は、エラー一覧の先頭のメッセージを控えてください。多くの場合、部品の名前（5-2）、イベントの割り当て（5-3）、Library のファイル名の抜けが原因です。</p>
 
-<h2>8. 動作確認</h2>
+<h2>10. 動作確認</h2>
 <ol class="step-list">
   <li>「メモ」欄に700文字を超える日本語の文章を入力する。</li>
   <li><strong>「QR生成」</strong>を押す。「QR数」と「Part: 1 / n」が表示され、QRコードが表示されること。</li>
@@ -870,7 +809,7 @@ namespace MemoQrTransfer.Services
   <li><strong>「新規」</strong>で確認ダイアログが出て、メモ・QR・Part表示がクリアされること。</li>
 </ol>
 
-<h2>9. 仕様との対応</h2>
+<h2>11. 仕様との対応</h2>
 <table>
   <thead><tr><th>仕様</th><th>実装</th></tr></thead>
   <tbody>
@@ -880,23 +819,23 @@ namespace MemoQrTransfer.Services
     <tr><td>JSON形式</td><td><code class="inline">QrJsonBuilder</code>：<code class="inline">id</code> / <code class="inline">part</code> / <code class="inline">total</code> / <code class="inline">text</code>。日本語は <code class="inline">\uXXXX</code> にしない</td></tr>
     <tr><td>約700文字で分割</td><td><code class="inline">MemoSplitter</code>：700文字単位。JSON化後が 2200 バイトを超える場合は自動で縮める</td></tr>
     <tr><td>生成時にBitmap保持</td><td><code class="inline">QrDocument</code> に保持。ページ移動では再生成しない</td></tr>
-    <tr><td>前へ・次へ・NumericUpDown</td><td><code class="inline">ShowPart</code> / <code class="inline">NumPart_ValueChanged</code></td></tr>
-    <tr><td>自動再生・ループ・間隔</td><td><code class="inline">System.Windows.Forms.Timer</code>、<code class="inline">_numInterval</code>、<code class="inline">_chkLoop</code></td></tr>
-    <tr><td>リセット</td><td><code class="inline">BtnNew_Click</code>：Timer停止 → PictureBoxクリア → Bitmap破棄 → メモクリア</td></tr>
-    <tr><td>画面構成</td><td>単一フォーム（<code class="inline">MainForm</code>）。画面遷移なし。デザイナーファイルは使わず、コードでUIを組み立てる</td></tr>
+    <tr><td>前へ・次へ・NumericUpDown</td><td><code class="inline">ShowPart</code> / <code class="inline">numPart_ValueChanged</code></td></tr>
+    <tr><td>自動再生・ループ・間隔</td><td><code class="inline">timerPlay</code>（Timer）、<code class="inline">numInterval</code>、<code class="inline">chkLoop</code></td></tr>
+    <tr><td>リセット</td><td><code class="inline">btnNew_Click</code>：Timer停止 → PictureBoxクリア → Bitmap破棄 → メモクリア</td></tr>
+    <tr><td>画面構成</td><td>単一フォーム（<code class="inline">MainForm</code>）。画面遷移なし。部品はデザイナーで配置</td></tr>
   </tbody>
 </table>
 
-<h2>10. よくあるつまずき</h2>
+<h2>12. よくあるつまずき</h2>
 <ul>
+  <li><strong>「'MainForm' に 'btnGenerate' の定義がない」など</strong>：部品の (Name) が表と一致しているか確認する（5-2）。スペルや大文字・小文字の違いに注意。</li>
+  <li><strong>ボタンを押しても何も起きない</strong>：イベントが割り当てられていない可能性があります。5-3 のとおり、稲妻マークの欄をダブルクリックしたか確認する。</li>
   <li><strong>「C# 言語バージョン 7.3 ではサポートされていません」などのエラー</strong>：csproj の <code class="inline">LangVersion</code> を <code class="inline">latest</code> にする（3節）。</li>
   <li><strong>「Form1 が既に定義されている」などのエラー</strong>：<code class="inline">Form1.Designer.cs</code> が残っていないか確認する（2節）。</li>
-  <li><strong>「Timer があいまい」エラー</strong>：<code class="inline">MainForm.cs</code> の <code class="inline">_timer</code> の型が <code class="inline">System.Windows.Forms.Timer</code> になっているか確認する。</li>
   <li><strong>「型 'QrCode' が見つからない」など</strong>：Library フォルダのファイルが41個そろっているか、ファイル名が GitHub と一致しているか確認する。</li>
   <li><strong>日本語が正しく表示されない</strong>：フォント「Yu Gothic UI」を使っています。Windows 10 以降なら標準で入っています。</li>
-  <li><strong>QRが読めない</strong>：表示が小さすぎる可能性があります。PictureBox の大きさは 600×600 程度です。</li>
+  <li><strong>QRが読めない</strong>：表示が小さすぎる可能性があります。picQr の大きさは 600×600 程度です。</li>
   <li><strong>容量超過の例外</strong>：<code class="inline">MemoSplitter.MaxJsonBytes</code> を下げてください（2200 → 2000 など）。</li>
-  <li><strong>ライブラリを更新したい</strong>：GitHub の該当タグ（今回は v3.2.1）の <code class="inline">QrCodeGenerator</code> フォルダから、同じ手順で差し替えてください。</li>
 </ul>
 
 </main>
