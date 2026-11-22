@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>メモQR転送 セットアップ手順</title>
+<title>ツール セットアップ手順</title>
 <style>
 :root {
   --bg: #f7f6f3;
@@ -128,12 +128,12 @@ a { color: var(--accent); }
 <body>
 <main>
 
-<h1>メモQR転送ツール セットアップ手順書</h1>
+<h1>ツール セットアップ手順書</h1>
 <p class="lead">Visual Studio 2022 / WinForms / C# / .NET Framework 4.8。フォームの部品はデザイナーで配置し、コードは処理部分だけを貼り付けます。</p>
 
 <h2>0. 前提</h2>
 <ul>
-  <li><strong>NuGet・DLLは使いません。</strong> QR生成ライブラリは、GitHubのソース（.csファイル41個）をプロジェクトに直接コピーして使います。</li>
+  <li><strong>NuGet・DLLは使いません。</strong> ライブラリは、GitHubのソース（.csファイル41個）をプロジェクトに直接コピーして使います。</li>
   <li><strong>対象フレームワークは .NET Framework 4.8 です。</strong> <code class="inline">System.Text.Json</code> は使わず、JSONは手書きの文字列処理で作ります。</li>
   <li><strong>画面の部品はデザイナーで配置します。</strong> 配置する部品の名前・文字・位置は、この手順書の表どおりにしてください。部品の名前が違うと、コードがエラーになります。</li>
   <li>このページの「コピー」ボタンでコードをコピーできます。省略はありません。</li>
